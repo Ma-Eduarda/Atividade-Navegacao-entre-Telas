@@ -1,6 +1,6 @@
 import { IAuthor } from "@/Interfaces/IAuthor";
-import React, { useState, useEffect } from "react";
-import { StyleSheet, TouchableOpacity, View, TextInput, Text } from "react-native";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export type AddAuthorScreenProps = {
     onAdd: (nome: string, bio: string, id: number) => void;
@@ -28,38 +28,32 @@ export default function AuthorModal({onCancel, onAdd, onDelete, author }: AddAut
     }, [author]);
 
     return (
-            <View style={styles.overlay}>
-                <View style={{ width: "80%" }}>
-                    <Text style={styles.header}>Novo Autor</Text>
-
-                    <TextInput
-                        placeholder="Nome"
-                        value={nome}
-                        onChangeText={setNome}
-                        style={styles.input}
-                    />
-
-                    <TextInput
-                        placeholder="Bio"
-                        value={bio}
-                        onChangeText={setBio}
-                        style={[styles.input, { height: 70 }]}
-                        multiline
-                    />
-
-
+        <View style={styles.overlay}>
+            <View style={styles.container}>
+                <Text style={styles.header}>Novo Autor</Text>
+                <TextInput
+                    placeholder="Nome"
+                    value={nome}
+                    onChangeText={setNome}
+                    style={styles.input}
+                />
+                <TextInput
+                    placeholder="Bio"
+                    value={bio}
+                    onChangeText={setBio}
+                    style={[styles.input, { height: 70 }]}
+                    multiline
+                />
+                <View style={styles.buttonContainer}>
                     <TouchableOpacity style={styles.addButton} onPress={() => onAdd(nome, bio, id)}>
                         <Text style={styles.addButtonText}>Adicionar</Text>
                     </TouchableOpacity>
-                    
-
                     <TouchableOpacity onPress={onCancel} style={styles.closeButton}>
                         <Text style={styles.closeButtonText}>Cancelar</Text>
                     </TouchableOpacity>
-
-
                 </View>
             </View>
+        </View>
     );
 }
 
@@ -69,6 +63,11 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         justifyContent: "center",
         alignItems: "center",
+    },
+    container: {
+        width: "80%",
+        flex: 1,
+        marginTop: 50,
     },
     header: {
         fontSize: 20,
@@ -82,6 +81,11 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         padding: 10,
         marginBottom: 12,
+    },
+    buttonContainer: {
+        flex: 1,
+        justifyContent: "flex-end",
+        marginBottom: 10,
     },
     addButton: {
         backgroundColor: "#1d5c2aff",
@@ -111,7 +115,6 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginTop: 10,
     },
-
     deleteButtonText: {
         color: "#ffffffff",
         textAlign: "center",
