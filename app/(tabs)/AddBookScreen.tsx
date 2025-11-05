@@ -33,7 +33,7 @@ export default function AddBookScreen({ onCancel, onAdd, book }: AddBookScreenPr
 
     return (
             <View style={styles.overlay}>
-                <View style={{ width: "80%" }}>
+                <View style={styles.container}>
                     <Text style={styles.header}>Novo Livro</Text>
 
                     <TextInput
@@ -57,16 +57,17 @@ export default function AddBookScreen({ onCancel, onAdd, book }: AddBookScreenPr
                         onChangeText={setImage}
                         style={styles.input}
                     />
-
-                    <TouchableOpacity style={styles.addButton} onPress={() => onAdd(title, description, image, id)}>
+                    <View style = {styles.buttonContainer}>
+                        <TouchableOpacity style={styles.addButton} onPress={() => onAdd(title, description, image, id)}>
                         <Text style={styles.addButtonText}>Adicionar</Text>
-                    </TouchableOpacity>
+                        </TouchableOpacity>
 
-                    <TouchableOpacity onPress={onCancel} style={styles.closeButton}>
+                        <TouchableOpacity onPress={onCancel} style={styles.closeButton}>
                         <Text style={styles.closeButtonText}>Cancelar</Text>
-                    </TouchableOpacity>
-
+                        </TouchableOpacity>
+                    </View>
                 </View>
+
             </View>
     );
 }
@@ -77,6 +78,11 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         justifyContent: "center",
         alignItems: "center",
+    },
+    container: { 
+        width: "80%", 
+        flex: 1, 
+        marginTop: 50
     },
     header: {
         fontSize: 20,
@@ -96,6 +102,12 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 8,
         marginTop: 5,
+    },
+    buttonContainer: {
+        flex: 1,
+        display: "flex",
+        justifyContent: "flex-end",
+        marginBottom: 10,
     },
     addButtonText: {
         color: "#fff",
