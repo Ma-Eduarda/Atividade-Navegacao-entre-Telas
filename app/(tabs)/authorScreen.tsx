@@ -1,5 +1,5 @@
 import { Image } from "expo-image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 
 import Autor from "@/components/author/author";
@@ -8,42 +8,75 @@ import ParallaxScrollView from "@/components/parallax-scroll-view";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IAuthor } from "@/Interfaces/IAuthor";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Location from "expo-location";
 
 export default function AuthorScreen() {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedAuthor, setSelectedAuthor] = useState<IAuthor>();
-    const [author, setAuthor] = useState<IAuthor[]>([{
-        id: 1,
-        nome: "George R.R. Martin",
-        bio: "George R. R. Martin é um autor, roteirista e produtor de televisão americano. É mundialmente famoso pela série de livros de fantasia épica 'Game of Thrones'.",
-    }]);
+    const [author, setAuthor] = useState<IAuthor[]>([]);
+    const [location, setLocation] = useState({});
+    const [errorMsg, setErrorMsg] = useState("");
+    const [expanded, setExpanded] = useState(false);
 
+    useEffect(() => {
+        async function getData() {
+            try {
+                const data = await AsyncStorage.getItem("@authors:authors");
+                const authorsData = data != null ? JSON.parse(data) : [];
+                setAuthor(authorsData);
+            } catch (e) {
+            }
+        }
+        getData()
+    }, []);
+
+    useEffect(() => {
+        (async () => {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setErrorMsg('Permission to access location was denied');
+                return;
+            }
+
+            let location = await Location.getCurrentPositionAsync({});
+            setLocation(location);
+        })();
+    }, []);
+
+    let text = 'Waiting..';
+    if (errorMsg) {
+        text = errorMsg;
+    } else if (location) {
+        text = JSON.stringify(location);
+    }
 
     const onAdd = (nome: string, bio: string, id?: number) => {
-        
-        if(!id || id <= 0){
+
+        if (!id || id <= 0) {
             const newAuthor = {
                 id: Math.random() * 1000,
                 nome,
                 bio
             };
-            
+
             const authorPlus: IAuthor[] = [
-                ...author, 
+                ...author,
                 newAuthor
             ];
 
             setAuthor(authorPlus);
 
         } else {
-            author.forEach( author => {
-                if(author.id == id){
+            author.forEach(author => {
+                if (author.id == id) {
                     author.nome = nome;
                     author.bio = bio;
                 }
             });
 
             setAuthor([...author]);
+            AsyncStorage.setItem("@authors:authors", JSON.stringify(author));
         }
         setModalVisible(false);
     };
@@ -51,14 +84,15 @@ export default function AuthorScreen() {
     const onDelete = (id: number) => {
         const newAuthor: Array<IAuthor> = [];
 
-        for(let index = 0; index < author.length; index++){
+        for (let index = 0; index < author.length; index++) {
             const authors = author[index];
 
-            if(authors.id != id){
+            if (authors.id != id) {
                 newAuthor.push(authors);
             }
         }
         setAuthor(newAuthor);
+        AsyncStorage.setItem("@authors:authors", JSON.stringify(newAuthor));
         setModalVisible(false);
     };
 
@@ -87,12 +121,18 @@ export default function AuthorScreen() {
             }
         >
             <ThemedView style={styles.titleContainer}>
-                <ThemedText type="title">Autores 📝 </ThemedText> 
+                <ThemedText type="title">Autores 📝 </ThemedText>
             </ThemedView>
 
             <ThemedView style={styles.stepContainer}>
                 <ThemedText>Adicione, edite ou remova autores da sua lista.</ThemedText>
             </ThemedView>
+
+            <TouchableOpacity onPress={() => setExpanded(!expanded)}>
+                <ThemedText
+                    style={styles.locationText}
+                    numberOfLines={expanded ? undefined : 1}>📍 {text}</ThemedText>
+            </TouchableOpacity>
 
             <TouchableOpacity onPress={() => openModal()}>
                 <ThemedText style={styles.addButton}>+</ThemedText>
@@ -144,5 +184,11 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         padding: 5,
         paddingTop: 5,
+    },
+    locationText: {
+        fontSize: 12,
+        color: "#555",
+        fontStyle: "italic",
+        backgroundColor: "#f1f1f1cc",
     },
 });

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Image } from "expo-image";
 import { StyleSheet, TouchableOpacity } from "react-native";
 
@@ -8,43 +8,71 @@ import { ThemedView } from "@/components/themed-view";
 import BooksModal from "@/components/modals/booksModal";
 import Books from "@/components/books/books";
 import { IBook } from "@/Interfaces/IBooks";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Location from "expo-location";
+
 
 export default function BookScreen() {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [selectedBook, setSelectedBook] = useState<IBook>();
-    const [books, setBooks] = useState<IBook[]>([{
-    id: 1,
-        title: "Guerra dos Tronos: volume 1",
-        description: "O verão pode durar décadas. O inverno, toda uma vida. E a guerra dos tronos começou.",
-        image: "https://m.media-amazon.com/images/I/91+1SUO3vUL._SY425_.jpg"
-    },
-    {
-    id: 2,
-        title: "Harry Potter e a Pedra Filosofal: 1",
-        description: "Harry Potter é um garoto cujos pais, feiticeiros, foram assassinados por um poderosíssimo bruxo quando ele ainda era um bebê.",
-        image: "https://m.media-amazon.com/images/I/81ibfYk4qmL._SL1500_.jpg"
-    }]);
+    const [books, setBooks] = useState<IBook[]>([]);
+    const [location, setLocation] = useState({});
+    const [errorMsg, setErrorMsg] = useState("");
+    const [expanded, setExpanded] = useState(false);
 
-    const onAdd = (title: string, description: string, image: string, id?: number) => {
-        
-        if(!id || id <= 0){
+    useEffect(() => {
+        async function getData() {
+            try {
+                const data = await AsyncStorage.getItem("@books:books");
+                const booksData = data != null ? JSON.parse(data) : [];
+                setBooks(booksData);
+            } catch (e) {
+            }
+        }
+        getData()
+    }, []);
+
+    useEffect(() => {
+        (async () => {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setErrorMsg('Permission to access location was denied');
+                return;
+            }
+
+            let location = await Location.getCurrentPositionAsync({});
+            setLocation(location);
+        })();
+    }, []);
+
+    let text = 'Waiting..';
+    if (errorMsg) {
+        text = errorMsg;
+    } else if (location) {
+        text = JSON.stringify(location);
+    }
+
+    const onAdd = async (title: string, description: string, image: string, id?: number) => {
+
+        if (!id || id <= 0) {
             const newBook: IBook = {
                 id: Math.random() * 1000,
                 title: title,
                 description: description,
                 image: image
             };
-            
+
             const booksPlus: IBook[] = [
-                ...books, 
+                ...books,
                 newBook
             ];
 
             setBooks(booksPlus);
+            AsyncStorage.setItem("@books:books", JSON.stringify(booksPlus));
 
         } else {
-            books.forEach( book => {
-                if(book.id === id){
+            books.forEach(book => {
+                if (book.id === id) {
                     book.title = title;
                     book.description = description;
                     book.image = image;
@@ -52,6 +80,7 @@ export default function BookScreen() {
             });
 
             setBooks([...books]);
+            AsyncStorage.setItem("@books:books", JSON.stringify(books));
         }
         setModalVisible(false);
     };
@@ -61,12 +90,13 @@ export default function BookScreen() {
 
         for (let index = 0; index < books.length; index++) {
             const book = books[index];
-            
+
             if (book.id != id) {
                 newBooks.push(book);
             }
         }
         setBooks(newBooks);
+        AsyncStorage.setItem("@books:books", JSON.stringify(newBooks));
         setModalVisible(false);
     };
 
@@ -101,12 +131,16 @@ export default function BookScreen() {
             <ThemedView style={styles.stepContainer}>
                 <ThemedText>Adicione, edite ou remova livros da sua lista.</ThemedText>
             </ThemedView>
-            
+
+            <TouchableOpacity onPress={() => setExpanded(!expanded)}>
+                <ThemedText
+                    style={styles.locationText}
+                    numberOfLines={expanded ? undefined : 1}>📍 {text}</ThemedText>
+            </TouchableOpacity>
+
             <TouchableOpacity onPress={() => openModal()}>
                 <ThemedText style={styles.addButton}>+</ThemedText>
             </TouchableOpacity>
-            
-
 
             {books.map((book) => (
                 <TouchableOpacity key={book.id} onPress={() => openEditModal(book)}>
@@ -155,5 +189,11 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         padding: 5,
         paddingTop: 5,
+    },
+    locationText: {
+        fontSize: 12,
+        color: "#555",
+        fontStyle: "italic",
+        backgroundColor: "#f1f1f1cc",
     },
 });

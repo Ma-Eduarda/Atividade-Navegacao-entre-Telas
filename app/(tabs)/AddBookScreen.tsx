@@ -79,16 +79,17 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
     },
-    container: { 
-        width: "80%", 
-        flex: 1, 
-        marginTop: 50
+    container: {
+        width: "80%",
+        flex: 1,
+        marginTop: 50,
     },
     header: {
-        fontSize: 20,
+        fontSize: 25,
         fontWeight: "bold",
         textAlign: "center",
-        marginBottom: 20,
+        marginBottom: 40,
+        marginTop:80,
     },
     input: {
         borderWidth: 1,
@@ -96,18 +97,19 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         padding: 10,
         marginBottom: 12,
+        backgroundColor: "#55555513",
+
+    },
+    buttonContainer: {
+        flex: 1,
+        justifyContent: "flex-end",
+        marginBottom: 50,
     },
     addButton: {
         backgroundColor: "#1d5c2aff",
         padding: 10,
         borderRadius: 8,
         marginTop: 5,
-    },
-    buttonContainer: {
-        flex: 1,
-        display: "flex",
-        justifyContent: "flex-end",
-        marginBottom: 10,
     },
     addButtonText: {
         color: "#fff",
@@ -131,10 +133,10 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginTop: 10,
     },
-
     deleteButtonText: {
         color: "#ffffffff",
         textAlign: "center",
         fontWeight: "bold",
     },
 });
+

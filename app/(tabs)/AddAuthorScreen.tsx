@@ -70,10 +70,11 @@ const styles = StyleSheet.create({
         marginTop: 50,
     },
     header: {
-        fontSize: 20,
+        fontSize: 25,
         fontWeight: "bold",
         textAlign: "center",
-        marginBottom: 20,
+        marginBottom: 40,
+        marginTop:80,
     },
     input: {
         borderWidth: 1,
@@ -81,11 +82,13 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         padding: 10,
         marginBottom: 12,
+        backgroundColor: "#55555513",
+
     },
     buttonContainer: {
         flex: 1,
         justifyContent: "flex-end",
-        marginBottom: 10,
+        marginBottom: 50,
     },
     addButton: {
         backgroundColor: "#1d5c2aff",
