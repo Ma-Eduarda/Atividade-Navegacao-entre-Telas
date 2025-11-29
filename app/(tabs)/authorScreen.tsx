@@ -1,19 +1,18 @@
 import { Image } from "expo-image";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 import Autor from "@/components/author/author";
-import AuthorModal from "@/components/modals/authorModal";
 import ParallaxScrollView from "@/components/parallax-scroll-view";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IAuthor } from "@/Interfaces/IAuthor";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
+import { router } from "expo-router";
 
 export default function AuthorScreen() {
-    const [modalVisible, setModalVisible] = useState(false);
-    const [selectedAuthor, setSelectedAuthor] = useState<IAuthor>();
     const [author, setAuthor] = useState<IAuthor[]>([]);
     const [location, setLocation] = useState({});
     const [errorMsg, setErrorMsg] = useState("");
@@ -26,6 +25,7 @@ export default function AuthorScreen() {
                 const authorsData = data != null ? JSON.parse(data) : [];
                 setAuthor(authorsData);
             } catch (e) {
+                
             }
         }
         getData()
@@ -51,64 +51,10 @@ export default function AuthorScreen() {
         text = JSON.stringify(location);
     }
 
-    const onAdd = (nome: string, bio: string, id?: number) => {
 
-        if (!id || id <= 0) {
-            const newAuthor = {
-                id: Math.random() * 1000,
-                nome,
-                bio
-            };
-
-            const authorPlus: IAuthor[] = [
-                ...author,
-                newAuthor
-            ];
-
-            setAuthor(authorPlus);
-
-        } else {
-            author.forEach(author => {
-                if (author.id == id) {
-                    author.nome = nome;
-                    author.bio = bio;
-                }
-            });
-
-            setAuthor([...author]);
-            AsyncStorage.setItem("@authors:authors", JSON.stringify(author));
-        }
-        setModalVisible(false);
-    };
-
-    const onDelete = (id: number) => {
-        const newAuthor: Array<IAuthor> = [];
-
-        for (let index = 0; index < author.length; index++) {
-            const authors = author[index];
-
-            if (authors.id != id) {
-                newAuthor.push(authors);
-            }
-        }
-        setAuthor(newAuthor);
-        AsyncStorage.setItem("@authors:authors", JSON.stringify(newAuthor));
-        setModalVisible(false);
-    };
-
-    const openModal = () => {
-        setSelectedAuthor(undefined);
-        setModalVisible(true);
-    };
-
-    const openEditModal = (selectedAuthor: IAuthor) => {
-        setSelectedAuthor(selectedAuthor)
-        setModalVisible(true);
-    };
-
-    const closeModal = () => {
-        setModalVisible(false);
-    };
+    const navigateToAuthorDetail = (selectedAuthor: IAuthor) => {
+        router.push({ pathname: '/screens/AuthorDetailScreen', params: { authorId: selectedAuthor.id } })
+    }
 
     return (
         <ParallaxScrollView
@@ -121,74 +67,87 @@ export default function AuthorScreen() {
             }
         >
             <ThemedView style={styles.titleContainer}>
-                <ThemedText type="title">Autores 📝 </ThemedText>
+                <ThemedText type="title" style={styles.title} >Autores 📝 </ThemedText>
             </ThemedView>
 
             <ThemedView style={styles.stepContainer}>
-                <ThemedText>Adicione, edite ou remova autores da sua lista.</ThemedText>
+                <ThemedText style={styles.subtitle}>
+                    Gerencie sua lista de autores.
+                </ThemedText>
+
+                <TouchableOpacity onPress={() => setExpanded(!expanded)} >
+                    <ThemedText style={styles.locationText} numberOfLines={expanded ? undefined : 1}
+                    > 📍 {text} </ThemedText>
+                </TouchableOpacity>
             </ThemedView>
 
-            <TouchableOpacity onPress={() => setExpanded(!expanded)}>
-                <ThemedText
-                    style={styles.locationText}
-                    numberOfLines={expanded ? undefined : 1}>📍 {text}</ThemedText>
+            <TouchableOpacity style={styles.addButton} onPress={() => router.push('/screens/AddEditAuthorScreen')}>
+                <Ionicons name="add" size={25} color="#fff" />
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => openModal()}>
-                <ThemedText style={styles.addButton}>+</ThemedText>
-            </TouchableOpacity>
-
-            {author.map((author) => (
-                <TouchableOpacity key={author.id} onPress={() => openEditModal(author)}>
-                    <Autor
-                        key={author.id}
-                        nome={author.nome}
-                        bio={author.bio}
-                    />
-                </TouchableOpacity>
-            ))}
-
-            <AuthorModal
-                visible={modalVisible}
-                onAdd={onAdd}
-                onCancel={closeModal}
-                onDelete={onDelete}
-                author={selectedAuthor}
-            />
-
+            <View style={styles.listContainer}>
+                {author.map((author) => (
+                    <TouchableOpacity  activeOpacity={0.8} key={author.id} onPress={() => navigateToAuthorDetail(author)}>
+                        <Autor
+                            nome={author.nome}
+                            bio={author.bio}
+                            image={author.image}
+                        />
+                    </TouchableOpacity>
+                ))}
+            </View>
         </ParallaxScrollView>
     );
 }
 
 const styles = StyleSheet.create({
-    titleContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 8,
-    },
-    stepContainer: {
-        gap: 8,
-        marginBottom: 8,
-    },
     reactLogo: {
         width: 500,
         height: 300,
         alignSelf: "center",
     },
-    addButton: {
-        backgroundColor: "#1D3D47",
-        color: "#FFFFFF",
-        fontSize: 30,
-        textAlign: "center",
-        borderRadius: 20,
-        marginBottom: 10,
-        padding: 5,
-        paddingTop: 5,
+
+    titleContainer: {
+        marginTop: 10,
     },
-    locationText: {
-        fontSize: 12,
+
+    title: {
+        fontSize: 28,
+        fontWeight: "bold",
+        textAlign: "center",
+    },
+
+    subtitle: {
+        textAlign: "center",
         color: "#555",
+        fontSize: 14,
+        marginBottom: 8,
+    },
+
+    stepContainer: {
+        marginBottom: 5,
+    },
+
+    locationText: {
+        fontSize: 10,
+        color: "#444",
         fontStyle: "italic",
-        backgroundColor: "#f1f1f1cc",
+        textAlign: "center",
+    },
+
+    listContainer: {
+        gap: 12,
+        marginBottom: 30,
+    },
+
+    addButton: {
+        backgroundColor: "#0dbe83ff",
+        paddingVertical: 8,
+        borderRadius: 50,
+        justifyContent: "center",
+        alignItems: "center",
+        width: "100%",
+        alignSelf: "center",
+        marginBottom: 10,
     },
 });

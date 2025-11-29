@@ -1,44 +1,69 @@
 import React from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
+import { Image } from "expo-image";
 
-export type BooksProps = {
+interface Props {
     title: string;
     description: string;
     image: string;
-};
+}
 
-export default function Books({ title, description, image }: BooksProps) {
+export default function Books({ title, description, image }: Props) {
     return (
-        <View style={styles.container}>
-            <Image source={{ uri: image }} style={styles.image} />
-            <Text style={styles.title}>{title}</Text>
-            <Text style={styles.description}>{description}</Text>
+        <View style={styles.card}>
+            <Image
+                source={{ uri: image }}
+                style={styles.image}
+                contentFit="cover"
+            />
+
+            <View style={styles.info}>
+                <Text style={styles.title}>{title}</Text>
+                <Text style={styles.description} numberOfLines={3}>
+                    {description}
+                </Text>
+            </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        backgroundColor: "#55555513",
-        padding: 10,
-        borderRadius: 8,
-        marginBottom: 10,
-        alignItems: "center",
+    card: {
+        flexDirection: "row",
+        backgroundColor: "#f8f8f8ff",
+        borderRadius: 10,
+        padding: 2,
+        marginBottom: 15,
+        gap: 10,
+        shadowColor: "#000",
+        shadowOpacity: 0.10,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 4,
+        elevation: 3,
     },
+
     image: {
-        width: 100,
-        height: 150,
-        borderRadius: 6,
-        marginBottom: 8,
+        width: 80,
+        height: 120,
+        borderRadius: 10,
+        backgroundColor: "#ddd",
+        resizeMode: "cover",
     },
+
+    info: {
+        flex: 1,
+    },
+
     title: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: "bold",
-        textAlign: "center",
+        marginBottom: 4,
+        marginTop: 10,
     },
+
     description: {
-        fontSize: 14,
-        color: "gray",
-        textAlign: "center",
+        fontSize: 13,
+        color: "#666",
+        marginTop: 10,
     },
 });

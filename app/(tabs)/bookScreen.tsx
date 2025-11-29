@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { Image } from "expo-image";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 import ParallaxScrollView from "@/components/parallax-scroll-view";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import BooksModal from "@/components/modals/booksModal";
 import Books from "@/components/books/books";
 import { IBook } from "@/Interfaces/IBooks";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
-
+import { router } from "expo-router";
 
 export default function BookScreen() {
-    const [modalVisible, setModalVisible] = useState<boolean>(false);
-    const [selectedBook, setSelectedBook] = useState<IBook>();
     const [books, setBooks] = useState<IBook[]>([]);
     const [location, setLocation] = useState({});
     const [errorMsg, setErrorMsg] = useState("");
@@ -27,16 +25,17 @@ export default function BookScreen() {
                 const booksData = data != null ? JSON.parse(data) : [];
                 setBooks(booksData);
             } catch (e) {
+                
             }
         }
-        getData()
+        getData();
     }, []);
 
     useEffect(() => {
         (async () => {
             let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                setErrorMsg('Permission to access location was denied');
+            if (status !== "granted") {
+                setErrorMsg("Permission to access location was denied");
                 return;
             }
 
@@ -45,73 +44,12 @@ export default function BookScreen() {
         })();
     }, []);
 
-    let text = 'Waiting..';
-    if (errorMsg) {
-        text = errorMsg;
-    } else if (location) {
-        text = JSON.stringify(location);
-    }
+    let text = "Carregando...";
+    if (errorMsg) text = errorMsg;
+    else if (location) text = JSON.stringify(location);
 
-    const onAdd = async (title: string, description: string, image: string, id?: number) => {
-
-        if (!id || id <= 0) {
-            const newBook: IBook = {
-                id: Math.random() * 1000,
-                title: title,
-                description: description,
-                image: image
-            };
-
-            const booksPlus: IBook[] = [
-                ...books,
-                newBook
-            ];
-
-            setBooks(booksPlus);
-            AsyncStorage.setItem("@books:books", JSON.stringify(booksPlus));
-
-        } else {
-            books.forEach(book => {
-                if (book.id === id) {
-                    book.title = title;
-                    book.description = description;
-                    book.image = image;
-                }
-            });
-
-            setBooks([...books]);
-            AsyncStorage.setItem("@books:books", JSON.stringify(books));
-        }
-        setModalVisible(false);
-    };
-
-    const onDelete = (id: number) => {
-        const newBooks: Array<IBook> = [];
-
-        for (let index = 0; index < books.length; index++) {
-            const book = books[index];
-
-            if (book.id != id) {
-                newBooks.push(book);
-            }
-        }
-        setBooks(newBooks);
-        AsyncStorage.setItem("@books:books", JSON.stringify(newBooks));
-        setModalVisible(false);
-    };
-
-    const openModal = () => {
-        setSelectedBook(undefined);
-        setModalVisible(true);
-    };
-
-    const openEditModal = (selectedBook: IBook) => {
-        setSelectedBook(selectedBook)
-        setModalVisible(true);
-    };
-
-    const closeModal = () => {
-        setModalVisible(false);
+    const navigateToAddEditBook = (selectedBook: IBook) => {
+        router.push({ pathname: "/screens/AddEditBookScreen", params: { bookId: selectedBook.id } });
     };
 
     return (
@@ -125,75 +63,90 @@ export default function BookScreen() {
             }
         >
             <ThemedView style={styles.titleContainer}>
-                <ThemedText type="title">Lista de livros 📚 </ThemedText>
+                <ThemedText type="title" style={styles.title}>
+                    Lista de Livros 📚
+                </ThemedText>
             </ThemedView>
 
             <ThemedView style={styles.stepContainer}>
-                <ThemedText>Adicione, edite ou remova livros da sua lista.</ThemedText>
+                <ThemedText style={styles.subtitle}>
+                    Gerencie sua lista de livros.
+                </ThemedText>
+
+                <TouchableOpacity onPress={() => setExpanded(!expanded)} >
+                    <ThemedText style={styles.locationText} numberOfLines={expanded ? undefined : 1}
+                    > 📍 {text} </ThemedText>
+                </TouchableOpacity>
             </ThemedView>
 
-            <TouchableOpacity onPress={() => setExpanded(!expanded)}>
-                <ThemedText
-                    style={styles.locationText}
-                    numberOfLines={expanded ? undefined : 1}>📍 {text}</ThemedText>
+            <TouchableOpacity style={styles.addButton} onPress={() => router.push('/screens/AddEditBookScreen')}>
+                <Ionicons name="add" size={25} color="#fff" />
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => openModal()}>
-                <ThemedText style={styles.addButton}>+</ThemedText>
-            </TouchableOpacity>
+            <View style={styles.listContainer}>
+                {books.map((book) => (
+                    <TouchableOpacity activeOpacity={0.8} key={book.id} onPress={() => navigateToAddEditBook(book)}>
+                        <Books
+                            title={book.title}
+                            description={book.description}
+                            image={book.image}
+                        />
+                    </TouchableOpacity>
+                ))}
 
-            {books.map((book) => (
-                <TouchableOpacity key={book.id} onPress={() => openEditModal(book)}>
-                    <Books
-                        key={book.id}
-                        title={book.title}
-                        description={book.description}
-                        image={book.image}
-                    />
-                </TouchableOpacity>
-            ))}
-
-            <BooksModal
-                visible={modalVisible}
-                onAdd={onAdd}
-                onCancel={closeModal}
-                onDelete={onDelete}
-                book={selectedBook}
-            />
-
+            </View>
         </ParallaxScrollView>
     );
 }
 
 const styles = StyleSheet.create({
-    titleContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 8,
-    },
-    stepContainer: {
-        gap: 8,
-        marginBottom: 8,
-    },
     reactLogo: {
         width: 500,
         height: 300,
         alignSelf: "center",
     },
-    addButton: {
-        backgroundColor: "#1D3D47",
-        color: "#FFFFFF",
-        fontSize: 30,
-        textAlign: "center",
-        borderRadius: 20,
-        marginBottom: 10,
-        padding: 5,
-        paddingTop: 5,
+
+    titleContainer: {
+        marginTop: 10,
     },
-    locationText: {
-        fontSize: 12,
+
+    title: {
+        fontSize: 28,
+        fontWeight: "bold",
+        textAlign: "center",
+    },
+
+    subtitle: {
+        textAlign: "center",
         color: "#555",
+        fontSize: 14,
+        marginBottom: 8,
+    },
+
+    stepContainer: {
+        marginBottom: 5,
+    },
+
+    locationText: {
+        fontSize: 10,
+        color: "#444",
         fontStyle: "italic",
-        backgroundColor: "#f1f1f1cc",
+        textAlign: "center",
+    },
+
+    listContainer: {
+        gap: 12,
+        marginBottom: 30,
+    },
+
+    addButton: {
+        backgroundColor: "#0dbe83ff",
+        paddingVertical: 8,
+        borderRadius: 50,
+        justifyContent: "center",
+        alignItems: "center",
+        width: "100%",
+        alignSelf: "center",
+        marginBottom: 10,
     },
 });

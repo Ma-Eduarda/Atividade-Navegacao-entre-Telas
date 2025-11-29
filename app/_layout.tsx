@@ -10,11 +10,13 @@ export const unstable_settings = {
 export default function RootLayout() {
   return (
     <ThemeProvider value={DefaultTheme}>
-      <Stack>
+      <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+        <Stack.Screen name="screens/AddEditBookScreen" options={{ headerShown: true, title: "" }} />
+        <Stack.Screen name="screens/AddEditAuthorScreen" options={{ headerShown: true, title: "" }} />
+        <Stack.Screen name="screens/AuthorDetailScreen" options={{ headerShown: true, title: "" }} />
       </Stack>
-
       <StatusBar style="dark" />
     </ThemeProvider>
   );

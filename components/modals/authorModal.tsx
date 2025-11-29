@@ -50,7 +50,11 @@ export default function AuthorModal({ visible, onCancel, onAdd, onDelete, author
                     />
 
 
-                    <TouchableOpacity style={styles.addButton} onPress={() => onAdd(nome, bio, id)}>
+                    <TouchableOpacity style={styles.addButton} onPress={() => {onAdd(nome, bio, id);
+                    setNome("");
+                    setBio("");
+                    setId(0);
+                    }}>
                         <Text style={styles.addButtonText}>{id > 0 ? "Salvar" : "Adicionar"}</Text>
                     </TouchableOpacity>
                     

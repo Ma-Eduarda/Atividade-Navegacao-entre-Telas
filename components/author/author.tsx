@@ -1,42 +1,68 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { Image } from "expo-image";
 
-export type AutorProps = {
+interface Props {
     nome: string;
     bio: string;
-};
+    image: string;
+}
 
-export default function Autor({ nome, bio}: AutorProps) {
+export default function Author({ nome, bio, image }: Props) {
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>{nome}</Text>
-            <Text style={styles.description}>{bio}</Text>
+        <View style={styles.card}>
+
+            <Image
+                source={{ uri: image }}
+                style={styles.image}
+                contentFit="cover"
+            />
+
+            <View style={styles.infoArea}>
+                <Text style={styles.title}>{nome}</Text>
+                <Text style={styles.bio} numberOfLines={2}>{bio}</Text>
+            </View>
+
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        backgroundColor: "#55555513",
+    card: {
+        flexDirection: "row",
+        backgroundColor: "#f8f8f8ff",
+        borderRadius: 15,
         padding: 10,
-        borderRadius: 8,
-        marginBottom: 10,
+        marginVertical: 6,
+        shadowColor: "#000",
+        shadowOpacity: 0.10,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 4,
+        elevation: 3,
+        gap: 10,
         alignItems: "center",
     },
+
     image: {
-        width: 100,
-        height: 150,
-        borderRadius: 6,
-        marginBottom: 8,
+        width: 80,
+        height: 80,
+        borderRadius: 100,
+        backgroundColor: "#ddd",
     },
+
+    infoArea: {
+        flex: 1,
+        justifyContent: "center",
+    },
+
     title: {
         fontSize: 18,
-        fontWeight: "bold",
-        textAlign: "center",
+        fontWeight: "600",
+        marginBottom: 4,
     },
-    description: {
+
+    bio: {
         fontSize: 14,
-        color: "gray",
-        textAlign: "center",
+        color: "#555",
     },
 });

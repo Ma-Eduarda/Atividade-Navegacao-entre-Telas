@@ -11,7 +11,7 @@ export type BooksModalProps = {
 };
 
 export default function BooksModal({ visible, onCancel, onAdd, onDelete, book }: BooksModalProps) {
-    
+
     const [title, setTitle] = useState<string>("");
     const [description, setDescription] = useState<string>("");
     const [image, setImage] = useState<string>("");
@@ -60,23 +60,28 @@ export default function BooksModal({ visible, onCancel, onAdd, onDelete, book }:
                         style={styles.input}
                     />
 
-                    <TouchableOpacity style={styles.addButton} onPress={() => onAdd(title, description, image, id)}>
-                        <Text style={styles.addButtonText}>{id > 0 ? "Salvar" : "Adicionar"}</Text>
+                    <TouchableOpacity style={styles.addButton} onPress={() => {onAdd(title, description, image, id);
+                    setTitle("");
+                    setDescription("");
+                    setImage("");
+                    setId(0);
+                    }}>
+                    <Text style={styles.addButtonText}>{id > 0 ? "Salvar" : "Adicionar"}</Text>
+                </TouchableOpacity>
+
+                {id > 0 && (
+                    <TouchableOpacity onPress={() => onDelete?.(id)} style={styles.deleteButton}>
+                        <Text style={styles.deleteButtonText}>Deletar</Text>
                     </TouchableOpacity>
+                )}
 
-                    {id > 0 && (
-                        <TouchableOpacity onPress={() => onDelete?.(id)} style={styles.deleteButton}>
-                            <Text style={styles.deleteButtonText}>Deletar</Text>
-                        </TouchableOpacity>
-                    )}
+                <TouchableOpacity onPress={onCancel} style={styles.closeButton}>
+                    <Text style={styles.closeButtonText}>Cancelar</Text>
+                </TouchableOpacity>
 
-                    <TouchableOpacity onPress={onCancel} style={styles.closeButton}>
-                        <Text style={styles.closeButtonText}>Cancelar</Text>
-                    </TouchableOpacity>
-
-                </View>
             </View>
-        </Modal>
+        </View>
+        </Modal >
     );
 }
 
