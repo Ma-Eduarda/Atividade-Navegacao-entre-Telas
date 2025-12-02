@@ -148,5 +148,7 @@ const styles = StyleSheet.create({
         width: "100%",
         alignSelf: "center",
         marginBottom: 10,
+        borderColor: "#029b3dff",
+        borderWidth: 1,
     },
 });

@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { StyleSheet, TouchableOpacity, View, TextInput, Text } from "react-native";
-import ParallaxScrollView from "@/components/parallax-scroll-view";
-import { Image } from "expo-image";
 
 import { IBook } from "@/Interfaces/IBooks";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -94,64 +92,71 @@ export default function AddEditBookScreen() {
 
 
     return (
-            <View style={styles.overlay}>
-                <View style={styles.container}>
+        <View style={styles.overlay}>
+            <View style={styles.container}>
 
-                    <View style={styles.form}>
-                        <Text style={styles.header}>{id > 0 ? "Editar Livro" : "Novo Livro"}</Text>
+                <View style={styles.form}>
+                    <Text style={styles.header}>{id > 0 ? "Editar Livro" : "Novo Livro"}</Text>
 
-                        <Text style={styles.hr} />
-                        <Text style={styles.label} >Título: </Text>
-                        <TextInput
-                            placeholder="Título"
-                            value={title}
-                            onChangeText={setTitle}
-                            style={styles.input}
-                        />
+                    <Text style={styles.hr} />
+                    <Text style={styles.label} >Título: </Text>
+                    <TextInput
+                        placeholder="Título"
+                        value={title}
+                        onChangeText={setTitle}
+                        style={styles.input}
+                    />
 
-                        <Text style={styles.label} >Descrição: </Text>
-                        <TextInput
-                            placeholder="Descrição"
-                            value={description}
-                            onChangeText={setDescription}
-                            style={[styles.input, { height: 100 }]}
-                            multiline
-                            textAlignVertical="top"
-                        />
+                    <Text style={styles.label} >Descrição: </Text>
+                    <TextInput
+                        placeholder="Descrição"
+                        value={description}
+                        onChangeText={setDescription}
+                        style={[styles.input, { height: 100 }]}
+                        multiline
+                        textAlignVertical="top"
+                    />
 
-                        <Text style={styles.label} >URL da Imagem: </Text>
-                        <TextInput
-                            placeholder="URL da imagem"
-                            value={image}
-                            onChangeText={setImage}
-                            style={styles.input}
-                        />
-                    </View>
+                    <Text style={styles.label} >URL da Imagem: </Text>
+                    <TextInput
+                        placeholder="URL da imagem"
+                        value={image}
+                        onChangeText={setImage}
+                        style={styles.input}
+                    />
+                </View>
 
-                    <View style={styles.buttonContainer}>
+                <View style={styles.buttonContainer}>
 
-                        <TouchableOpacity style={styles.addButton} onPress={() => {
-                            onAdd(title, description, image, id);
-                            router.replace('/(tabs)/bookScreen');
-                        }}>
-                            <Ionicons name={id > 0 ? "save-outline" : "add-outline"} size={20} color="white" style={{ marginRight: 8 }} />
+                    <TouchableOpacity style={styles.addButton} onPress={() => {
+                        onAdd(title, description, image, id);
+                        router.replace('/(tabs)/bookScreen');
+                    }}>
+                        <View style={styles.iconRow}>
+                            <Ionicons name={id > 0 ? "save-outline" : "add-outline"} size={21} color="white"style={styles.icon}/>
                             <Text style={styles.addButtonText}>{id > 0 ? "Salvar" : "Adicionar"}</Text>
-                        </TouchableOpacity>
+                        </View>
+                    </TouchableOpacity>
 
-                        {id > 0 && (
-                            <TouchableOpacity onPress={() => onDelete()} style={styles.deleteButton}>
-                                <Ionicons name="trash-outline" size={20} color="white" style={{ marginRight: 8 }} />
+                    {id > 0 && (
+                        <TouchableOpacity onPress={() => onDelete()} style={styles.deleteButton}>
+                            <View style={styles.iconRow}>
+                                <Ionicons name="trash-outline" size={20} color="white" style={styles.icon}/>
                                 <Text style={styles.deleteButtonText}>Excluir</Text>
-                            </TouchableOpacity>
-                        )}
-
-                        <TouchableOpacity onPress={() => router.replace('/(tabs)/bookScreen')} style={styles.closeButton}>
-                            <Ionicons name="close-outline" size={20} color="white" style={{ marginRight: 8 }} />
-                            <Text style={styles.closeButtonText}>Cancelar</Text>
+                            </View>
                         </TouchableOpacity>
-                    </View>
+                    )}
+
+                    <TouchableOpacity onPress={() => router.replace('/(tabs)/bookScreen')} style={styles.closeButton}>
+                        <View style={styles.iconRow}>
+                            <Ionicons name="close-outline" size={21} color="white" style={styles.icon}/>
+                            <Text style={styles.closeButtonText}>Cancelar</Text>
+                        </View>
+                    </TouchableOpacity>
+                    
                 </View>
             </View>
+        </View>
     );
 }
 
@@ -220,10 +225,51 @@ const styles = StyleSheet.create({
 
     addButton: {
         backgroundColor: "#0dbe83ff",
-        padding: 10,
+        paddingVertical: 12,
+        paddingHorizontal: 18,
         borderRadius: 50,
         flexDirection: "row",
         justifyContent: "center",
+        alignItems: "center",
+        width: "100%",
+    },
+
+    deleteButton: {
+        backgroundColor: "#eb5353ff",
+        paddingVertical: 12,
+        paddingHorizontal: 18,
+        borderRadius: 50,
+        marginTop: 12,
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        width: "100%",
+    },
+
+    closeButton: {
+        backgroundColor: "#6b7280",
+        paddingVertical: 12,
+        paddingHorizontal: 18,
+        borderRadius: 50,
+        marginTop: 12,
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        width: "100%",
+    },
+
+    iconRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "flex-start",  
+        width: 120,                     
+        paddingLeft: 12,               
+    },
+
+    icon: {
+        width: 24,
+        textAlign: "center",
+        marginRight: 8,
     },
 
     addButtonText: {
@@ -231,48 +277,20 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         fontSize: 16,
     },
-
-    deleteButton: {
-        backgroundColor: "#eb5353ff",
-        padding: 10,
-        borderRadius: 50,
-        marginTop: 12,
-        flexDirection: "row",
-        justifyContent: "center",
-        alignItems: "center",
-    },
-
     deleteButtonText: {
         color: "#fff",
         fontWeight: "bold",
         fontSize: 16,
     },
-
-    closeButton: {
-        backgroundColor: "#6b7280",
-        padding: 10,
-        borderRadius: 50,
-        marginTop: 12,
-        flexDirection: "row",
-        justifyContent: "center",
-        alignItems: "center",
-    },
-
     closeButtonText: {
         color: "#fff",
         fontWeight: "bold",
         fontSize: 16,
     },
-
     hr: {
-        height: 1,
-        backgroundColor: "#d1d5db",
         width: "100%",
-        marginTop: 8,
-        marginBottom: 25,
-        borderRadius: 10,
-        alignItems: "center",
-        justifyContent: "center",
-
+        height: 1,
+        backgroundColor: "#0000002f",
+        marginBottom: 30,
     },
 });

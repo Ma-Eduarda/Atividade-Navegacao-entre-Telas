@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
         marginTop: 40,
         flex: 1,
         justifyContent: "flex-end",
-        marginBottom: 80,
+        marginBottom: 60,
     },
 
     button: {
