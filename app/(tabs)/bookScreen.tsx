@@ -64,7 +64,7 @@ export default function BookScreen() {
         >
             <ThemedView style={styles.titleContainer}>
                 <ThemedText type="title" style={styles.title}>
-                    Lista de Livros 📚
+                    Lista de Livros
                 </ThemedText>
             </ThemedView>
 

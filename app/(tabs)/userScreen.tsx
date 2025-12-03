@@ -1,19 +1,21 @@
-import { Image } from "expo-image";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { Image } from "expo-image";
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import Autor from "@/components/author/author";
+import User from "@/components/user/user";
+import UserModal from "@/components/modals/userModal";
 import ParallaxScrollView from "@/components/parallax-scroll-view";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { IAuthor } from "@/Interfaces/IAuthor";
+import { IUser } from "@/Interfaces/IUser";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
-import { router } from "expo-router";
 
-export default function AuthorScreen() {
-    const [author, setAuthor] = useState<IAuthor[]>([]);
+export default function UserScreen() {
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<IUser>();
+    const [user, setUser] = useState<IUser[]>([]);
     const [location, setLocation] = useState({});
     const [errorMsg, setErrorMsg] = useState("");
     const [expanded, setExpanded] = useState(false);
@@ -21,11 +23,10 @@ export default function AuthorScreen() {
     useEffect(() => {
         async function getData() {
             try {
-                const data = await AsyncStorage.getItem("@authors:authors");
-                const authorsData = data != null ? JSON.parse(data) : [];
-                setAuthor(authorsData);
+                const data = await AsyncStorage.getItem("@users:users");
+                const userData = data != null ? JSON.parse(data) : [];
+                setUser(userData);
             } catch (e) {
-                
             }
         }
         getData()
@@ -51,10 +52,65 @@ export default function AuthorScreen() {
         text = JSON.stringify(location);
     }
 
+    const onAdd = (nome: string, email: string, id?: number) => {
 
-    const navigateToAuthorDetail = (selectedAuthor: IAuthor) => {
-        router.push({ pathname: '/screens/AuthorDetailScreen', params: { authorId: selectedAuthor.id } })
-    }
+        if (!id || id <= 0) {
+            const newUser = {
+                id: Math.random() * 1000,
+                nome,
+                email
+            };
+
+            const userPlus: IUser[] = [
+                ...user,
+                newUser
+            ];
+
+            setUser(userPlus);
+            AsyncStorage.setItem("@users:users", JSON.stringify(userPlus));
+
+        } else {
+            user.forEach(user => {
+                if (user.id == id) {
+                    user.nome = nome;
+                    user.email = email;
+                }
+            });
+
+            setUser([...user]);
+            AsyncStorage.setItem("@users:users", JSON.stringify(user));
+        }
+        setModalVisible(false);
+    };
+
+    const onDelete = (id: number) => {
+        const newUser: Array<IUser> = [];
+
+        for (let index = 0; index < user.length; index++) {
+            const users = user[index];
+
+            if (users.id != id) {
+                newUser.push(users);
+            }
+        }
+        setUser(newUser);
+        AsyncStorage.setItem("@users:users", JSON.stringify(newUser));
+        setModalVisible(false);
+    };
+
+    const openModal = () => {
+        setSelectedUser(undefined);
+        setModalVisible(true);
+    };
+
+    const openEditModal = (selectedUser: IUser) => {
+        setSelectedUser(selectedUser)
+        setModalVisible(true);
+    };
+
+    const closeModal = () => {
+        setModalVisible(false);
+    };
 
     return (
         <ParallaxScrollView
@@ -67,12 +123,12 @@ export default function AuthorScreen() {
             }
         >
             <ThemedView style={styles.titleContainer}>
-                <ThemedText type="title" style={styles.title} >Autores </ThemedText>
+                <ThemedText style={styles.title} type="title">Usuários</ThemedText>
             </ThemedView>
 
             <ThemedView style={styles.stepContainer}>
                 <ThemedText style={styles.subtitle}>
-                    Gerencie sua lista de autores.
+                    Gerencie sua lista de Usuários.
                 </ThemedText>
 
                 <TouchableOpacity onPress={() => setExpanded(!expanded)} >
@@ -81,21 +137,30 @@ export default function AuthorScreen() {
                 </TouchableOpacity>
             </ThemedView>
 
-            <TouchableOpacity style={styles.addButton} onPress={() => router.push('/screens/AddEditAuthorScreen')}>
+            <TouchableOpacity style={styles.addButton} onPress={() => openModal()}>
                 <Ionicons name="add" size={25} color="#fff" />
             </TouchableOpacity>
 
             <View style={styles.listContainer}>
-                {author.map((author) => (
-                    <TouchableOpacity  activeOpacity={0.8} key={author.id} onPress={() => navigateToAuthorDetail(author)}>
-                        <Autor
-                            nome={author.nome}
-                            bio={author.bio}
-                            image={author.image}
+                {user.map((user) => (
+                    <TouchableOpacity key={user.id} onPress={() => openEditModal(user)}>
+                        <User
+                            key={user.id}
+                            nome={user.nome}
+                            email={user.email}
                         />
                     </TouchableOpacity>
                 ))}
             </View>
+
+            <UserModal
+                visible={modalVisible}
+                onAdd={onAdd}
+                onCancel={closeModal}
+                onDelete={onDelete}
+                user={selectedUser}
+            />
+
         </ParallaxScrollView>
     );
 }
@@ -109,6 +174,11 @@ const styles = StyleSheet.create({
 
     titleContainer: {
         marginTop: 10,
+        flex: 1,
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 10,
     },
 
     title: {

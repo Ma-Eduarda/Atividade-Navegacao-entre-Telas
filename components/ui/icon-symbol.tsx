@@ -17,11 +17,15 @@ const MAPPING = {
   'house.fill': 'home',
   'paperplane.fill': 'send',
   'book.fill': 'menu-book',
+  'person.text.rectangle': 'article',
   'person.fill': 'person',
+  'book.circle.fill': 'menu-book',
+  'pencil': 'edit',
+  'pencil.and.outline': 'edit',
+  'pencil.circle.fill': 'edit-note',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
 } as IconMapping;
-
 /**
  * An icon component that uses native SF Symbols on iOS, and Material Icons on Android and web.
  * This ensures a consistent look across platforms, and optimal resource usage.

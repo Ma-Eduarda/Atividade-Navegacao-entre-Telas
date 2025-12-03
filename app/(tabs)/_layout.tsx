@@ -41,11 +41,22 @@ export default function TabLayout() {
       <Tabs.Screen
         name="authorScreen"
         options={{
-          title: 'Author',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+          title: 'Authors',
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="pencil.circle.fill" color={color} />
+          ),
         }}
       />
 
+      <Tabs.Screen
+        name="userScreen"
+        options={{
+          title: 'Users',
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="person.fill" color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
